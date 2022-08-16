@@ -1,5 +1,6 @@
 const UserSchema = require("../models/userSchema");
 const bcrypt = require("bcrypt");
+const { db } = require("../models/userSchema");
 
 const createUser = async (req, res) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -22,16 +23,19 @@ const createUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {    
-    try {
-        const user = await req.body.name.drop();
-        
-        res.status(200).json({
-            message: "User deleted!"
-        });
+        try {
+            req.body = await UserSchema.remove(req.body);
+            const removerUser = req.body;
+            () => {
+                removerUser.remove();
+            }
+            res.status(200).json({
+                message: "User deleted!"
+            });
     } catch (error) {
         res.status(500).json({
-            message: error.message
-        })
+        message: error.message
+    })
 };
 }
 
